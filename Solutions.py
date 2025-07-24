@@ -138,8 +138,6 @@ LEVEL 2 - MEDIUM
 """
 1. Longest palindromic substring
 """
-
-
 class Solution(object):
     def longestPalindrome(self, s):
         """
