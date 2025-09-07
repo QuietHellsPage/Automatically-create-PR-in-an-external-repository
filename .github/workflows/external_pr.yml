@@ -39,6 +39,15 @@ jobs:
           git commit -m "Update report from ${{ github.repository }}"
           git push origin automated-update-${{ github.sha }}
 
+      - name: Create label if not exists
+        run: |
+          cd Testing-repository
+          if ! gh label view "automated pr" --repo QuietHellsPage/Testing-repository 2>/dev/null; then
+          gh label create "automated pr" --color "0E8A16" --description "Automated pull request" --repo QuietHellsPage/Testing-repository
+          fi
+        env:
+          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
+
       - name: Create Pull Request using GH CLI
         run: |
           cd Testing-repository
