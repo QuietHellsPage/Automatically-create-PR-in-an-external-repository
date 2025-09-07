@@ -9,6 +9,7 @@ jobs:
   createExternalPR:
     runs-on: ubuntu-latest
 #    if: github.ref != 'refs/heads/main'
+
     steps:
       - uses: actions/checkout@v4
 
@@ -30,14 +31,6 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Create branch and commit changes
-        run: |
-          cd Testing-repository
-          git checkout -b automated-update-${{ github.sha }}
-          git add report.txt
-          git commit -m "Update report from ${{ github.repository }}"
-          git push origin automated-update-${{ github.sha }}
-
       - name: Create label if not exists
         run: |
           cd Testing-repository
@@ -47,21 +40,41 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
 
-      - name: Create Pull Request using GH CLI
+      - name: Check if PR already exists and update branch
         run: |
           cd Testing-repository
-          gh pr create \
-            --repo QuietHellsPage/Testing-repository \
-            --head automated-update-${{ github.sha }} \
-            --base main \
-            --title "[Automated] PR from ${{ github.repository }}" \
-            --body "Automated update from ${{ github.repository }}
-            
-            Generated at: $(date)
-            Source commit: ${{ github.sha }}
-            Triggered by: ${{ github.actor }}" \
-            --label "automated pr" \
-            --assignee QuietHellsPage \
-            --reviewer QuietHellsPage
+          BRANCH_NAME="auto-update-from-${{ github.event.repository.name }}"
+          if git show-ref --quiet refs/remotes/origin/$BRANCH_NAME; then
+            git checkout $BRANCH_NAME
+            git pull origin $BRANCH_NAME
+          else
+            git checkout -b $BRANCH_NAME
+          fi
+          cp ../report.txt .
+          git add report.txt
+          git commit -m "Update report from ${{ github.repository }} at $(date)"
+          git push origin $BRANCH_NAME
+
+      - name: Create or update Pull Request
+        run: |
+          cd Testing-repository
+          BRANCH_NAME="auto-update-from-${{ github.event.repository.name }}"
+          PR_NUMBER=$(gh pr list --repo QuietHellsPage/Testing-repository --head $BRANCH_NAME --json number -q '.[0].number' 2>/dev/null || true)
+          if [ -z "$PR_NUMBER" ]; then
+            gh pr create \
+              --repo QuietHellsPage/Testing-repository \
+              --head $BRANCH_NAME \
+              --base main \
+              --title "[Automated] Updates from ${{ github.repository }}" \
+              --body "Automated updates from ${{ github.repository }}
+              Generated at: $(date)
+              Source: ${{ github.sha }}
+              Triggered by: ${{ github.actor }}" \
+              --label "automated pr" \
+              --assignee QuietHellsPage \
+              --reviewer QuietHellsPage
+          else
+            gh pr comment $PR_NUMBER --repo QuietHellsPage/Testing-repository --body "Automatically updated at $(date)"
+          fi
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
