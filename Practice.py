@@ -776,4 +776,3 @@ lst = ["aaa, 86", "R, 52", "A, 86", "T, -11", "AaA, 46", "tres, 20", "Y, -11"]
 #
 # c = b.index(5436)
 
-print("Hello World")
