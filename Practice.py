@@ -759,21 +759,21 @@ lst = ["aaa, 86", "R, 52", "A, 86", "T, -11", "AaA, 46", "tres, 20", "Y, -11"]
 #
 # print(true_code(['L', 'mxvw', 'zdqw','brx', 'wr', 'nqrz','wkdw', 'L', 'dp','uhdgb', 'wr', 'jr']))
 
-b = list(range(2000000))
+# b = list(range(2000000))
+#
+# def binat(lst, tar):
+#     left = 0
+#     right = len(lst) - 1
+#     while left <= right:
+#         mid = (left + right) // 2
+#         if lst[mid] == tar:
+#             return lst[mid]
+#         elif lst[mid] < tar:
+#             left = mid + 1
+#         elif lst[mid] > tar:
+#             right = mid - 1
+#     return -1
+#
+# c = b.index(5436)
 
-def binat(lst, tar):
-    left = 0
-    right = len(lst) - 1
-    while left <= right:
-        mid = (left + right) // 2
-        if lst[mid] == tar:
-            return lst[mid]
-        elif lst[mid] < tar:
-            left = mid + 1
-        elif lst[mid] > tar:
-            right = mid - 1
-    return -1
-
-c = b.index(5436)
-
-
+print("Hello World")
