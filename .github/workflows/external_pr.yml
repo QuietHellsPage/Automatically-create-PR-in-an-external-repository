@@ -8,7 +8,6 @@ on:
 jobs:
   createExternalPR:
     runs-on: ubuntu-latest
-#    if: github.ref != 'refs/heads/main'
 
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +22,8 @@ jobs:
       - name: Clone target repository
         run: |
           bash external_pr_files/clone_target_repo.sh
+        env:
+          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
 
       - name: Create label if not exists
         run: |
@@ -32,10 +33,16 @@ jobs:
 
       - name: Check if PR already exists and update branch
         run: |
-          bash external_pr_files/check_pr_and_update_branch.sh
+          bash external_pr_files/check_pr_and_update_branch.sh "${{ github.event.repository.name }}"
+        env:
+          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
 
       - name: Create or update Pull Request
         run: |
-          bash bash external_pr_files/create_or_update_pr.sh
+          bash external_pr_files/create_or_update_pr.sh "${{ github.event.repository.name }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_ACTOR: ${{ github.actor }}
