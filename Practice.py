@@ -24,7 +24,7 @@
 #
 # print(dubs([3, 30, 34, 5, 9, 3], 3))
 from idlelib.tree import TreeItem
-from random import shuffle
+from random import shuffle, random
 
 # def mx(nums):
 #     return list(sorted(set(nums), reverse=True))[2] if len(set(sorted(nums))) > 2 else max(nums)
@@ -775,5 +775,74 @@ lst = ["aaa, 86", "R, 52", "A, 86", "T, -11", "AaA, 46", "tres, 20", "Y, -11"]
 #     return -1
 #
 # c = b.index(5436)
+#
+# films = {
+#     'Lionsgate': {'Рэмбо': [47, 125], 'Голодные игры': [408, 694]},
+#     'DreamWorks': {'Терминал': [77, 218], 'Звонок': [129, 249], 'Линкольн': [182, 275]},
+#     'Sony Pictures': {'Человек-Паук': [403, 821], 'Морбиус': [73, 167]},
+#     'Paramount Pictures': {'Крик': [103, 173], 'Соник': [148, 319], 'Топ Ган': [140, 1495]}
+# }
+# a = int(input())
+# res = 0
+# for comp, val in films.items():
+#     for film, sbors in val.items():
+#         if sbors[1] - sbors[0] > a:
+#             res += 1
+# print(res)
 
-print("Hello World Again")
+# actors = input().split("; ")
+# res = {}
+# for actor in actors:
+#     name, gon = actor.split(": ")
+#     a = gon.split(", ")
+#     c = 0
+#     for i in a:
+#         c += int(i)
+#     res[c] = name
+# k = sorted(res.items(), key=lambda x: x[0])
+# for i in k:
+#     print(i)
+
+# chans = input().split(", ")
+# res = {}
+# for chan in chans:
+#     name, ohv = chan.split(" - ")
+#     _, _, needed = ohv.split("; ")
+#     res[name] = float(needed)
+# k = sorted(res.items(), key=lambda x: x[1], reverse=True)
+# for elem in k:
+#     print(elem[0])
+
+# with open("films.txt", "r", encoding="utf-8") as file:
+#     dl = int(input())
+#     res = {}
+#     for line in file:
+#         name, dlit, rate, genre, prosm = line.split(";")
+#         gens = genre.split(", ")
+#         p = prosm.replace("\n", "")
+#         if int(dlit.split()[0]) > dl and "Crime" in gens:
+#             res[name] = int(p.replace(",", ""))
+#
+#     k = sorted(res.items(), key=lambda x: x[1], reverse=True)[:3]
+#     for i in k:
+#         print(i[0])
+
+a = int(input())
+res = {}
+for _ in range(a):
+    inp = input()
+    _, names = inp.split(": ")
+    channels = names.split(", ")
+    n = len(channels)
+    for i, channel in enumerate(channels):
+        rank = n - i
+        if channel not in res.items():
+            res[channel] = rank
+        else:
+            res[channel] += rank
+k = sorted(res.items(), key=lambda x: x[0])[0][0]
+print(k)
+
+
+
+
