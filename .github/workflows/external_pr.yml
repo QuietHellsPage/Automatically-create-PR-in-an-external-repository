@@ -18,62 +18,24 @@ jobs:
 
       - name: Setup GitHub CLI
         run: |
-          curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
-          sudo apt update
-          sudo apt install gh -y
+          bash external_pr_files/setup_cli.sh
 
       - name: Clone target repository
         run: |
-          git clone https://${{ secrets.TARGET_REPO_PAT }}@github.com/QuietHellsPage/Testing-repository.git
-          cd Testing-repository
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          bash external_pr_files/clone_target_repo.sh
 
       - name: Create label if not exists
         run: |
-          cd Testing-repository
-          if ! gh label list --repo QuietHellsPage/Testing-repository --json name -q '.[] | select(.name == "automated pr")' | grep -q "automated pr"; then
-            gh label create "automated pr" --color "0E8A16" --description "Automated pull request" --repo QuietHellsPage/Testing-repository
-          fi
+          bash external_pr_files/create_label.sh
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
 
       - name: Check if PR already exists and update branch
         run: |
-          cd Testing-repository
-          BRANCH_NAME="auto-update-from-${{ github.event.repository.name }}"
-          if git show-ref --quiet refs/remotes/origin/$BRANCH_NAME; then
-            git checkout $BRANCH_NAME
-            git pull origin $BRANCH_NAME
-          else
-            git checkout -b $BRANCH_NAME
-          fi
-          cp ../report.txt .
-          git add report.txt
-          git commit -m "Update report from ${{ github.repository }} at $(date)"
-          git push origin $BRANCH_NAME
+          bash external_pr_files/check_pr_and_update_branch.sh
 
       - name: Create or update Pull Request
         run: |
-          cd Testing-repository
-          BRANCH_NAME="auto-update-from-${{ github.event.repository.name }}"
-          PR_NUMBER=$(gh pr list --repo QuietHellsPage/Testing-repository --head $BRANCH_NAME --json number -q '.[0].number' 2>/dev/null || true)
-          if [ -z "$PR_NUMBER" ]; then
-            gh pr create \
-              --repo QuietHellsPage/Testing-repository \
-              --head $BRANCH_NAME \
-              --base main \
-              --title "[Automated] Updates from ${{ github.repository }}" \
-              --body "Automated updates from ${{ github.repository }}
-              Generated at: $(date)
-              Source: ${{ github.sha }}
-              Triggered by: ${{ github.actor }}" \
-              --label "automated pr" \
-              --assignee QuietHellsPage \
-              --reviewer QuietHellsPage
-          else
-            gh pr comment $PR_NUMBER --repo QuietHellsPage/Testing-repository --body "Automatically updated at $(date)"
-          fi
+          bash bash external_pr_files/create_or_update_pr.sh
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
