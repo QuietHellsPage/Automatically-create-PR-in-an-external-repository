@@ -6,7 +6,7 @@ on:
 
 jobs:
   createExternalPR:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, 'SYNC_TO_CHILD')
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, '[SYNC_TO_CHILD]')
     runs-on: ubuntu-latest
 
     steps:
