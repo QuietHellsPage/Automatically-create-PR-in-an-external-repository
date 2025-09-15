@@ -2,8 +2,9 @@
 set -e
 
 REPO_NAME=$1
+PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
-BRANCH_NAME="auto-update-from-$REPO_NAME"
+BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
 
 cd $TARGET_REPO
 
@@ -14,7 +15,10 @@ else
     git checkout -b $BRANCH_NAME
 fi
 
-cp ../report.txt .
-git add report.txt
-git commit -m "Update report from $REPO_NAME at $(date)"
+cp -r ../* . || true
+
+rm -rf .git external_pr_sh_files
+
+git add .
+git commit -m "Sync changes from $REPO_NAME PR #$PR_NUMBER"
 git push origin $BRANCH_NAME

@@ -1,16 +1,18 @@
 name: "Create PR in external repo using GH CLI"
 
 on:
-  push:
-    branches:
-      - '**'
+  pull_request:
+    types: [closed]
 
 jobs:
   createExternalPR:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, 'SYNC_TO_CHILD')
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Generate report file
         run: date "+%Y-%m-%d %H:%M" > report.txt

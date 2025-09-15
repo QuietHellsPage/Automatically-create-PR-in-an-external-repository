@@ -2,8 +2,9 @@
 set -e
 
 REPO_NAME=$1
+PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
-BRANCH_NAME="auto-update-from-$REPO_NAME"
+BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
 
 cd $TARGET_REPO
 
@@ -14,10 +15,10 @@ if [ -z "$PR_NUMBER" ]; then
         --repo QuietHellsPage/$TARGET_REPO \
         --head $BRANCH_NAME \
         --base main \
-        --title "[Automated] Updates from $REPO_NAME" \
-        --body "Automated updates from $REPO_NAME
-        Generated at: $(date)
-        Source: $GITHUB_SHA
+        --title "[Automated] Sync from $REPO_NAME PR #$PR_NUMBER" \
+        --body "Automated sync from $REPO_NAME PR #$PR_NUMBER
+        Source PR: #$PR_NUMBER
+        Merge commit: $GITHUB_SHA
         Triggered by: $GITHUB_ACTOR" \
         --label "automated pr" \
         --assignee QuietHellsPage \
