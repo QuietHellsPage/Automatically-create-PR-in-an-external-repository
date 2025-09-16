@@ -6,7 +6,7 @@ on:
 
 jobs:
   createExternalPR:
-    if: github.event.issue.pull_request == true && contains(github.event.comment.body, '[SYNC_TO_CHILD]') && github.event.issue.state == 'open'
+    if: github.event.issue.pull_request != null && contains(github.event.comment.body, '[SYNC_TO_CHILD]') && github.event.issue.state == 'open'
     runs-on: ubuntu-latest
 
     steps:
@@ -32,7 +32,7 @@ jobs:
 
       - name: Check if PR already exists and update branch
         run: |
-          bash external_pr_files/check_pr_and_update_branch.sh "${{ github.event.repository.name }}"
+          bash external_pr_files/check_pr_and_update_branch.sh "${{ github.event.repository.name }}" "${{ github.event.issue.number }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
           GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
@@ -40,7 +40,7 @@ jobs:
 
       - name: Create or update Pull Request
         run: |
-          bash external_pr_files/create_or_update_pr.sh "${{ github.event.repository.name }}"
+          bash external_pr_files/create_or_update_pr.sh "${{ github.event.repository.name }}" "${{ github.event.issue.number }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
           GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
