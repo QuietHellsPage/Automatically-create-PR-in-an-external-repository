@@ -37,6 +37,7 @@ jobs:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
           GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
           GITHUB_ACTOR: ${{ github.event.comment.user.login }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
 
       - name: Create or update Pull Request
         run: |
@@ -45,3 +46,4 @@ jobs:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
           GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
           GITHUB_ACTOR: ${{ github.event.comment.user.login }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
