@@ -21,5 +21,5 @@ fi
 cp ../report.txt .
 
 git add report.txt
-git commit -m "Sync changes from $REPO_NAME PR #$PR_NUMBER" || echo "No changes to commit"
+git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER" || echo "No changes to commit"
 git push origin $BRANCH_NAME

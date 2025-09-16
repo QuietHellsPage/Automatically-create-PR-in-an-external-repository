@@ -15,9 +15,9 @@ if [ -z "$PR_NUMBER" ]; then
         --repo QuietHellsPage/$TARGET_REPO \
         --head $BRANCH_NAME \
         --base main \
-        --title "[Automated] Sync from $REPO_NAME PR #$PR_NUMBER" \
-        --body "Automated sync from $REPO_NAME PR #$PR_NUMBER
-        Source PR: #$PR_NUMBER
+        --title "[Automated] Sync from $REPO_NAME PR $PR_NUMBER" \
+        --body "Automated sync from $REPO_NAME PR $PR_NUMBER
+        Source PR: $PR_NUMBER
         Merge commit: $GITHUB_SHA
         Triggered by: $GITHUB_ACTOR" \
         --label "automated pr" \
