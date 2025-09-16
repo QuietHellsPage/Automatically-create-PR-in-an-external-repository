@@ -8,6 +8,9 @@ BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
 
 cd $TARGET_REPO
 
+git config user.name "github-actions[bot]"
+git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
 if git show-ref --quiet refs/remotes/origin/$BRANCH_NAME; then
     git checkout $BRANCH_NAME
     git pull origin $BRANCH_NAME
@@ -15,10 +18,8 @@ else
     git checkout -b $BRANCH_NAME
 fi
 
-cp -r ../* . || true
+cp ../report.txt .
 
-rm -rf .git external_pr_sh_files
-
-git add .
-git commit -m "Sync changes from $REPO_NAME PR #$PR_NUMBER"
+git add report.txt
+git commit -m "Sync changes from $REPO_NAME PR #$PR_NUMBER" || echo "No changes to commit"
 git push origin $BRANCH_NAME
