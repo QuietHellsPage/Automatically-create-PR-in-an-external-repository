@@ -35,7 +35,7 @@ if [ -z "$CHANGED_FILES" ]; then
     exit 0
 fi
 
-file_in_BOM {
+file_in_BOM() {
     local file=$1
     grep -q "^$file$" "$BOM_FILE"
 }
