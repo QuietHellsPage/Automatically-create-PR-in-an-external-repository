@@ -154,4 +154,3 @@ class Solution(object):
             return ""
         
 "testing string"
-"another testing string"
