@@ -51,8 +51,7 @@ done
 
 git add .
 
-if git diff --cached --quiet; then
-else
+if ! git diff --cached --quiet; then
     git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
 fi
 
