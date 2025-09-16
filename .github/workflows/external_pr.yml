@@ -1,18 +1,18 @@
 name: "Create PR in external repo using GH CLI"
 
 on:
-  pull_request:
-    types: [closed]
+  issue_comment:
+    types: [created]
 
 jobs:
   createExternalPR:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.body, '[SYNC_TO_CHILD]')
+    if: github.event.issue.pull_request == true && contains(github.event.comment.body, '[SYNC_TO_CHILD]') && github.event.issue.state == 'open'
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
+          ref: ${{ github.event.issue.pull_request.head.sha }}
 
       - name: Setup GitHub CLI
         run: |
@@ -35,13 +35,13 @@ jobs:
           bash external_pr_files/check_pr_and_update_branch.sh "${{ github.event.repository.name }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
-          GITHUB_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-          GITHUB_ACTOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
+          GITHUB_ACTOR: ${{ github.event.comment.user.login }}
 
       - name: Create or update Pull Request
         run: |
           bash external_pr_files/create_or_update_pr.sh "${{ github.event.repository.name }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
-          GITHUB_SHA: ${{ github.event.pull_request.merge_commit_sha }}
-          GITHUB_ACTOR: ${{ github.event.pull_request.user.login }}
+          GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
+          GITHUB_ACTOR: ${{ github.event.comment.user.login }}
