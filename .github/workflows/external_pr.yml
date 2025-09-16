@@ -1,4 +1,4 @@
-name: "Create PR in external repo using GH CLI"
+name: "Automatic creation of PR in external repository"
 
 on:
   issue_comment:
