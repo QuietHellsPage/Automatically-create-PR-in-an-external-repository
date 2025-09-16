@@ -23,9 +23,21 @@ else
     git checkout -b $BRANCH_NAME
 fi
 
-echo "Getting changed files from PR $PR_NUMBER..."
+echo "Getting PR branch name..."
+PR_BRANCH=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json headRefName --jq '.headRefName' 2>/dev/null || echo "")
 
-CHANGED_FILES=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files.[].path' 2>/dev/null || echo "")
+if [ -z "$PR_BRANCH" ]; then
+    echo "Failed to get PR branch name"
+    exit 1
+fi
+
+echo "PR branch: $PR_BRANCH"
+
+git remote add parent-repo https://github.com/$GITHUB_REPOSITORY.git || echo "Remote already exists"
+git fetch parent-repo
+
+echo "Getting changed files from PR $PR_NUMBER..."
+CHANGED_FILES=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files[].path' 2>/dev/null || echo "")
 
 if [ -z "$CHANGED_FILES" ]; then
     echo "No changed files found in PR or error fetching file list"
@@ -35,15 +47,11 @@ fi
 echo "Changed files in PR:"
 echo "$CHANGED_FILES"
 
-echo "Copying only changed files from PR..."
+echo "Copying files from PR branch..."
 for file in $CHANGED_FILES; do
-    if [ -f "../$file" ]; then
-        echo "Copying $file..."
-        mkdir -p "$(dirname "$file")"
-        cp "../$file" "$file"
-    else
-        echo "File $file not found in parent repository, might be deleted in PR"
-    fi
+    echo "Copying $file..."
+    mkdir -p "$(dirname "$file")"
+    git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null || echo "File $file not found or error copying"
 done
 
 echo "Checking for deleted files in PR..."
@@ -58,7 +66,12 @@ done
 
 git add .
 
-git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER" || echo "No changes to commit"
+if git diff --cached --quiet; then
+    echo "No changes to commit"
+else
+    git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
+    echo "Changes committed"
+fi
 
 git push origin $BRANCH_NAME
 
