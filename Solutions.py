@@ -155,3 +155,5 @@ class Solution(object):
         
         
 "testing string"
+
+"test"
