@@ -44,12 +44,13 @@ for file in $CHANGED_FILES; do
     if file_in_BOM "$file"; then
         mkdir -p "$(dirname "$file")"
         git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null
+    fi
 done
 
 PR_FILE_STATUS=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files[] | select(.status == "removed") | .path' 2>/dev/null || echo "")
 
 for deleted_file in $PR_FILE_STATUS; do
-    if file_in_BOM "$file" && [ -f "$deleted_file" ]; then
+    if file_in_BOM "$deleted_file" && [ -f "$deleted_file" ]; then
         rm "$deleted_file"
     fi
 done
