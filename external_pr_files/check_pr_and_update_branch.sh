@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-
+ls
 REPO_NAME=$1
 PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
