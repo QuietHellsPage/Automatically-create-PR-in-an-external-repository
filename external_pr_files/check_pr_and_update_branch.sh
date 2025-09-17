@@ -5,7 +5,7 @@ REPO_NAME=$1
 PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
 BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
-BOM_FILE="/Users/andrejklimov/Desktop/leetcode-python/bom.txt"
+BOM_FILE="./bom.txt"
 
 cd $TARGET_REPO
 
@@ -40,10 +40,14 @@ file_in_BOM() {
     grep -q "^$file$" "$BOM_FILE"
 }
 
+HAS_CHANGES=false
+
 for file in $CHANGED_FILES; do
     if file_in_BOM "$file"; then
         mkdir -p "$(dirname "$file")"
         git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null
+        git add "$file"
+        HAS_CHANGES=true
     fi
 done
 
@@ -51,14 +55,14 @@ PR_FILE_STATUS=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --
 
 for deleted_file in $PR_FILE_STATUS; do
     if file_in_BOM "$deleted_file" && [ -f "$deleted_file" ]; then
-        rm "$deleted_file"
+        git rm "$deleted_file" 2>/dev/null || true
+        HAS_CHANGES=true
     fi
 done
 
-git add .
-
-if ! git diff --cached --quiet; then
+if [ "$HAS_CHANGES" = true ]; then
     git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
+    git push origin $BRANCH_NAME
+else
+    echo "No files from BOM were changed"
 fi
-
-git push origin $BRANCH_NAME

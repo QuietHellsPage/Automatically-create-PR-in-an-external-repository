@@ -1,1 +1,1 @@
-/Users/andrejklimov/Desktop/leetcode-python/report.txt
+./report.txt
