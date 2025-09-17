@@ -5,7 +5,7 @@ REPO_NAME=$1
 PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
 BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
-BOM_FILE="./bom.txt"
+BOM_FILE="../bom.txt"
 
 cd $TARGET_REPO
 
