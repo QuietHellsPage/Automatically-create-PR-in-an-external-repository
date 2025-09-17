@@ -62,7 +62,7 @@ done
 
 if [ "$HAS_CHANGES" = true ]; then
     git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
-    git push origin $BRANCH_NAME
+    git push 
 else
     echo "No changes in files listed in BOM"
 fi
