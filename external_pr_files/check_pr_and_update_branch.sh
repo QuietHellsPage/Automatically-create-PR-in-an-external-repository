@@ -33,19 +33,29 @@ if [ -z "$CHANGED_FILES" ]; then
     exit 0
 fi
 
+BOM_EXISTS=$(git ls-tree parent-repo/$PR_BRANCH:bom.txt &>/dev/null && echo "true" || echo "false")
 BOM_FILES=""
-if git ls-tree parent-repo/$PR_BRANCH:bom.txt &>/dev/null; then
+
+if [ "$BOM_EXISTS" = "true" ]; then
     BOM_FILES=$(git show parent-repo/$PR_BRANCH:bom.txt 2>/dev/null | grep -v '^$' || echo "")
+    echo "BOM files found:"
+    echo "$BOM_FILES"
 fi
 
 HAS_CHANGES=false
 
 for file in $CHANGED_FILES; do
-    if [ -z "$BOM_FILES" ] || echo "$BOM_FILES" | grep -q "^$file$" || echo "$BOM_FILES" | grep -q "^\./$file$"; then
+    if [ "$BOM_EXISTS" = "false" ]; then
+        echo "Skipping $file - bom.txt does not exist"
+        continue
+    fi
+    
+    if echo "$BOM_FILES" | grep -q "^$file$" || echo "$BOM_FILES" | grep -q "^\./$file$"; then
         mkdir -p "$(dirname "$file")"
         if git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null; then
             git add "$file"
             HAS_CHANGES=true
+            echo "Added $file - found in bom.txt"
         fi
     else
         echo "Skipping $file - not in bom.txt"
@@ -55,10 +65,16 @@ done
 PR_DELETED_FILES=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files[] | select(.status == "removed") | .path' 2>/dev/null || echo "")
 
 for deleted_file in $PR_DELETED_FILES; do
-    if [ -z "$BOM_FILES" ] || echo "$BOM_FILES" | grep -q "^$deleted_file$" || echo "$BOM_FILES" | grep -q "^\./$deleted_file$"; then
+    if [ "$BOM_EXISTS" = "false" ]; then
+        echo "Skipping deletion of $deleted_file - bom.txt does not exist"
+        continue
+    fi
+    
+    if echo "$BOM_FILES" | grep -q "^$deleted_file$" || echo "$BOM_FILES" | grep -q "^\./$deleted_file$"; then
         if [ -f "$deleted_file" ]; then
             git rm "$deleted_file" 2>/dev/null || rm "$deleted_file"
             HAS_CHANGES=true
+            echo "Removed $deleted_file - found in bom.txt"
         fi
     else
         echo "Skipping deletion of $deleted_file - not in bom.txt"
