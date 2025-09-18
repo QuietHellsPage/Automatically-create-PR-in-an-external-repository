@@ -8,7 +8,7 @@ BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$SOURCE_PR_NUMBER"
 
 cd $TARGET_REPO
 
-COMMENT_BODY="$COMMENT_BODY:-'No comment body available'"
+COMMENT_BODY="${COMMENT_BODY:-'No comment body available'}"
 
 TARGET_PR_NUMBER=$(gh pr list --repo QuietHellsPage/$TARGET_REPO --head $BRANCH_NAME --json number -q '.[0].number' 2>/dev/null || true)
 
@@ -17,7 +17,8 @@ if [ -z "$TARGET_PR_NUMBER" ]; then
 Source PR: $SOURCE_PR_NUMBER
 Commit: $GITHUB_SHA
 Triggered by: $GITHUB_ACTOR
-Comment: $COMMENT_BODY"
+Comment: $COMMENT_BODY
+Note: Only files listed in bom.txt have been synchronized"
     
     gh pr create \
         --repo QuietHellsPage/$TARGET_REPO \
@@ -29,5 +30,5 @@ Comment: $COMMENT_BODY"
         --assignee QuietHellsPage \
         --reviewer QuietHellsPage
 else
-    gh pr comment $TARGET_PR_NUMBER --repo QuietHellsPage/$TARGET_REPO --body "Automatically updated at $(date)"
+    gh pr comment $TARGET_PR_NUMBER --repo QuietHellsPage/$TARGET_REPO --body "Automatically updated at $(date) - Only files from bom.txt synchronized"
 fi

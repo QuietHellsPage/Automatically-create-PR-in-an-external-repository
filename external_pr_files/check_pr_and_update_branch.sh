@@ -35,24 +35,29 @@ if [ -z "$CHANGED_FILES" ]; then
     exit 0
 fi
 
+BOM_FILES=""
+if git ls-tree parent-repo/$PR_BRANCH:bom.txt &>/dev/null; then
+    BOM_FILES=$(git show parent-repo/$PR_BRANCH:bom.txt 2>/dev/null | grep -v '^$' || echo "")
+fi
 
 for file in $CHANGED_FILES; do
-    mkdir -p "$(dirname "$file")"
-    git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null
-done
-
-PR_FILE_STATUS=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files[] | select(.status == "removed") | .path' 2>/dev/null || echo "")
-
-for deleted_file in $PR_FILE_STATUS; do
-    if [ -f "$deleted_file" ]; then
-        rm "$deleted_file"
+    if [ -z "$BOM_FILES" ] || echo "$BOM_FILES" | grep -q "^$file$" || echo "$BOM_FILES" | grep -q "^\./$file$"; then
+        mkdir -p "$(dirname "$file")"
+        git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null || echo "File $file not found in parent repo"
     fi
 done
 
-git add .
+PR_DELETED_FILES=$(gh pr view $PR_NUMBER --repo $GITHUB_REPOSITORY --json files --jq '.files[] | select(.status == "removed") | .path' 2>/dev/null || echo "")
+
+for deleted_file in $PR_DELETED_FILES; do
+    if [ -z "$BOM_FILES" ] || echo "$BOM_FILES" | grep -q "^$deleted_file$" || echo "$BOM_FILES" | grep -q "^\./$deleted_file$"; then
+        if [ -f "$deleted_file" ]; then
+            git rm "$deleted_file" 2>/dev/null || rm "$deleted_file"
+        fi
+    fi
+done
 
 if ! git diff --cached --quiet; then
-    git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
+    git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER (filtered by bom.txt)"
+    git push origin $BRANCH_NAME
 fi
-
-git push origin $BRANCH_NAME
