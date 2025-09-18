@@ -38,18 +38,14 @@ if git ls-tree parent-repo/$PR_BRANCH:bom.txt &>/dev/null; then
     BOM_FILES=$(git show parent-repo/$PR_BRANCH:bom.txt 2>/dev/null | grep -v '^$' || echo "")
 fi
 
-# Добавляем флаг для отслеживания изменений
 HAS_CHANGES=false
 
 for file in $CHANGED_FILES; do
     if [ -z "$BOM_FILES" ] || echo "$BOM_FILES" | grep -q "^$file$" || echo "$BOM_FILES" | grep -q "^\./$file$"; then
         mkdir -p "$(dirname "$file")"
-        # Проверяем, изменился ли файл
         if git show parent-repo/$PR_BRANCH:"$file" > "$file" 2>/dev/null; then
             git add "$file"
             HAS_CHANGES=true
-        else
-            echo "File $file not found in parent repo"
         fi
     fi
 done
@@ -66,7 +62,7 @@ for deleted_file in $PR_DELETED_FILES; do
 done
 
 if [ "$HAS_CHANGES" = true ]; then
-    git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER (filtered by bom.txt)"
+    git commit -m "Sync changes from $REPO_NAME PR $PR_NUMBER"
     git push origin $BRANCH_NAME
 else
     echo "No changes to commit"
