@@ -47,6 +47,8 @@ for file in $CHANGED_FILES; do
             git add "$file"
             HAS_CHANGES=true
         fi
+    else
+        echo "Skipping $file - not in bom.txt"
     fi
 done
 
@@ -58,6 +60,8 @@ for deleted_file in $PR_DELETED_FILES; do
             git rm "$deleted_file" 2>/dev/null || rm "$deleted_file"
             HAS_CHANGES=true
         fi
+    else
+        echo "Skipping deletion of $deleted_file - not in bom.txt"
     fi
 done
 
