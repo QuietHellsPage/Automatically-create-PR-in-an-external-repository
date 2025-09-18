@@ -17,6 +17,7 @@ if [ -z "$TARGET_PR_NUMBER" ]; then
         --head $BRANCH_NAME \
         --base main \
         --title "[Automated] Sync from $REPO_NAME PR $SOURCE_PR_NUMBER" \
+        --fill \
         --label "automated pr" \
         --assignee QuietHellsPage \
         --reviewer QuietHellsPage
