@@ -18,30 +18,9 @@ jobs:
         run: |
           bash external_pr_files/setup_cli.sh
 
-      - name: Clone target repository
+      - name: Sync repositories
         run: |
-          bash external_pr_files/clone_target_repo.sh
-        env:
-          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
-
-      - name: Create label if not exists
-        run: |
-          bash external_pr_files/create_label.sh
-        env:
-          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
-
-      - name: Check if PR already exists and update branch
-        run: |
-          bash external_pr_files/check_pr_and_update_branch.sh "${{ github.event.repository.name }}" "${{ github.event.issue.number }}"
-        env:
-          GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
-          GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
-          GITHUB_ACTOR: ${{ github.event.comment.user.login }}
-          COMMENT_BODY: ${{ github.event.comment.body }}
-
-      - name: Create or update Pull Request
-        run: |
-          bash external_pr_files/create_or_update_pr.sh "${{ github.event.repository.name }}" "${{ github.event.issue.number }}"
+          bash external_pr_files/create_external_pr.sh "${{ github.event.repository.name }}" "${{ github.event.issue.number }}"
         env:
           GH_TOKEN: ${{ secrets.TARGET_REPO_PAT }}
           GITHUB_SHA: ${{ github.event.issue.pull_request.head.sha }}
