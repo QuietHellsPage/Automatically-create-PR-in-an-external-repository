@@ -4,7 +4,7 @@ set -e
 REPO_NAME=$1
 PR_NUMBER=$2
 TARGET_REPO="Testing-repository"
-BRANCH_NAME="Auto-updated from $REPO_NAME pr $PR_NUMBER"
+BRANCH_NAME="auto-update-from-$REPO_NAME-pr-$PR_NUMBER"
 
 # Clone Target Repo
 rm -rf $TARGET_REPO
@@ -90,7 +90,7 @@ if [ -z "$TARGET_PR_NUMBER" ]; then
         --repo QuietHellsPage/$TARGET_REPO \
         --head $BRANCH_NAME \
         --base main \
-        --title "[Automated] Sync from $REPO_NAME PR $SOURCE_PR_NUMBER" \
+        --title "[Automated] Sync from $REPO_NAME PR $PR_NUMBER" \
         --fill \
         --label "automated pr" \
         --assignee QuietHellsPage \
